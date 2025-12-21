@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quick Poll</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .results {
+            margin-top: 30px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="question">Loading...</h1>
+    <div id="options"></div>
+    <div class="results" id="results"></div>
+    <script>
+  const API_BASE = "http://127.0.0.1:8000";
+
+  async function loadPoll() {
+    const res = await fetch(`${API_BASE}/poll`);
+    const data = await res.json();
+
+    document.getElementById("question").innerText = data.question;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    Object.keys(data.options).forEach(option => {
+      const btn = document.createElement("button");
+      btn.innerText = option;
+      btn.onclick = () => vote(option);
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  async function vote(option) {
+    await fetch(`${API_BASE}/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ option })
+    });
+  }
+
+  function updateResults(results) {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "<h3>Live Results</h3>";
+
+    Object.entries(results).forEach(([option, count]) => {
+      const p = document.createElement("p");
+      p.innerText = `${option}: ${count}`;
+      resultsDiv.appendChild(p);
+    });
+  }
+
+  // WebSocket connection
+  const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+
+  ws.onmessage = (event) => {
+    const results = JSON.parse(event.data);
+    updateResults(results);
+  };
+
+  loadPoll();
+</script>
+</body>
+</html>

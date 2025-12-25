@@ -1,5 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect
-from backend.poll import poll_question, poll_options, active_connections, VoteRequest
+from .poll import poll_question, poll_options, active_connections, VoteRequest
 
 def register_routes(app):
 

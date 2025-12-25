@@ -49,3 +49,9 @@ ws.onmessage = event => {
 };
 
 loadPoll();
+
+async function resetPoll() {
+    await fetch(`${API_BASE}/reset`, {
+        method: "POST"
+    });
+}

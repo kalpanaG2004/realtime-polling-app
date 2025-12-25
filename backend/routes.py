@@ -2,6 +2,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from backend.poll import poll_question, poll_options, active_connections, VoteRequest
 
 def register_routes(app):
+
     @app.get("/poll")
     def get_poll():
         return {
@@ -38,3 +39,11 @@ def register_routes(app):
                 await websocket.receive_text()
         except WebSocketDisconnect:
             active_connections.remove(websocket)
+
+    @app.post("/reset")
+    def reset_poll():
+        for key in poll_options:
+            poll_options[key] = 0
+        return {
+            "message": "Poll Reset",
+        }
